@@ -1256,8 +1256,6 @@ const styles = {
     },
 
     sidebarAvatar: {
-        backgroundColor: themeColors.icon,
-        borderRadius: 20,
         height: variables.componentSizeNormal,
         width: variables.componentSizeNormal,
     },
