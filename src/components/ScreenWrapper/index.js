@@ -89,7 +89,7 @@ class ScreenWrapper extends React.Component {
     }
 
     /**
-     * Save `height` upon layout to ignore height provided by flex
+     * Save `height` upon layout.
      * @param {{nativeEvent: { layout: {x, y, width, height}}}}
      */
     onLayout = ({nativeEvent}) => {
