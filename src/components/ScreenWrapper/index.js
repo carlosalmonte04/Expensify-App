@@ -41,6 +41,7 @@ class ScreenWrapper extends React.Component {
 
         this.state = {
             didScreenTransitionEnd: false,
+            initialHeight: 0,
         };
     }
 
@@ -87,6 +88,16 @@ class ScreenWrapper extends React.Component {
         }
     }
 
+    /**
+     * Save `height` upon layout.
+     * @param {{nativeEvent: { layout: {x, y, width, height}}}}
+     */
+    onLayout = ({nativeEvent}) => {
+        if (this.state.initialHeight) return;
+        const initialHeight = nativeEvent.layout.height;
+        this.setState({initialHeight});
+    };
+
     render() {
         const maxHeight = this.props.shouldEnableMaxHeight ? this.props.windowHeight : undefined;
 
@@ -106,7 +117,8 @@ class ScreenWrapper extends React.Component {
 
                     return (
                         <View
-                            style={styles.flex1}
+                            onLayout={this.props.maintainInitialHeight ? this.onLayout : null}
+                            style={[this.state.initialHeight ? {height: this.state.initialHeight} : styles.flex1]}
                             // eslint-disable-next-line react/jsx-props-no-spreading
                             {...(this.props.environment === CONST.ENVIRONMENT.DEV ? this.panResponder.panHandlers : {})}
                         >

@@ -78,6 +78,7 @@ function MoneyRequestSelectorPage(props) {
 
     return (
         <ScreenWrapper
+            maintainInitialHeight
             includeSafeAreaPaddingBottom={false}
             shouldEnableKeyboardAvoidingView={false}
         >
