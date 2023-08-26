@@ -45,6 +45,9 @@ const propTypes = {
 
     /** Styles for the offline indicator */
     offlineIndicatorStyle: stylePropTypes,
+
+    /** Wether to restrict the view to the initial layout height. Prevents dynamic height due to flex */
+    maintainInitialHeight: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -59,6 +62,7 @@ const defaultProps = {
     shouldEnablePickerAvoiding: true,
     shouldShowOfflineIndicator: true,
     offlineIndicatorStyle: [],
+    maintainInitialHeight: false,
 };
 
 export {propTypes, defaultProps};
