@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import React, {useState, useRef} from 'react';
 import PropTypes from 'prop-types';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, Dimensions} from 'react-native';
 import lodashGet from 'lodash/get';
 import * as optionRowStyles from '../../styles/optionRowStyles';
 import styles from '../../styles/styles';
@@ -25,6 +25,8 @@ import * as OptionsListUtils from '../../libs/OptionsListUtils';
 import * as ReportUtils from '../../libs/ReportUtils';
 import useLocalize from '../../hooks/useLocalize';
 import Permissions from '../../libs/Permissions';
+import Navigation from '../../libs/Navigation/Navigation';
+import variables from '../../styles/variables';
 import Tooltip from '../Tooltip';
 
 const propTypes = {
@@ -114,6 +116,11 @@ function OptionRowLHN(props) {
      * @param {Object} [event] - A press event.
      */
     const showPopover = (event) => {
+        const isSmallScreenWidth = Dimensions.get('window').width <= variables.mobileResponsiveWidthBreakpoint;
+        const isReportRoute = !!Navigation.getActiveRoute().match(CONST.REPORT_ROUTE_REGEX);
+        if (isReportRoute && isSmallScreenWidth) {
+            return;
+        }
         setIsContextMenuActive(true);
         ReportActionContextMenu.showContextMenu(
             ContextMenuActions.CONTEXT_MENU_TYPES.REPORT,

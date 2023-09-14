@@ -754,6 +754,9 @@ const CONST = {
     // at least 8 characters, 1 capital letter, 1 lowercase number, 1 number
     PASSWORD_COMPLEXITY_REGEX_STRING: '^(?=.*[A-Z])(?=.*[0-9])(?=.*[a-z]).{8,}$',
 
+    // A report route has the string "/r/" followed by 16 digits
+    REPORT_ROUTE_REGEX: /^(\/r\/[0-9]{16})*$/,
+
     // 6 numeric digits
     VALIDATE_CODE_REGEX_STRING: /^\d{6}$/,
 
