@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import React, {useState, useRef} from 'react';
+import {useIsFocused} from '@react-navigation/native';
 import PropTypes from 'prop-types';
 import {View, StyleSheet} from 'react-native';
 import lodashGet from 'lodash/get';
@@ -65,6 +66,7 @@ const defaultProps = {
 
 function OptionRowLHN(props) {
     const popoverAnchor = useRef(null);
+    const isNavFocused = useIsFocused();
 
     const {translate} = useLocalize();
 
@@ -113,6 +115,7 @@ function OptionRowLHN(props) {
      * @param {Object} [event] - A press event.
      */
     const showPopover = (event) => {
+        if (!isNavFocused) return;
         setIsContextMenuActive(true);
         ReportActionContextMenu.showContextMenu(
             ContextMenuActions.CONTEXT_MENU_TYPES.REPORT,
