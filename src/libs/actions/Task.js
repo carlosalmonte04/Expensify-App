@@ -14,6 +14,7 @@ import * as ReportActionsUtils from '../ReportActionsUtils';
 import * as Expensicons from '../../components/Icon/Expensicons';
 import * as LocalePhoneNumber from '../LocalePhoneNumber';
 import * as Localize from '../Localize';
+import * as PersonalDetailsUtils from '../PersonalDetailsUtils';
 
 let currentUserEmail;
 let currentUserAccountID;
@@ -913,13 +914,34 @@ function clearEditTaskErrors(reportID) {
 }
 
 /**
+ *
+ * @param {string} taskAssignee
+ * @param {number} taskAssigneeAccountID
+ * @param {string} taskTitle
+ * @returns html string
+ */
+function getTaskReportActionMessageHTML(taskReport) {
+    const personalDetailsList = PersonalDetailsUtils.getAllPersonalDetails();
+    const taskTitle = taskReport.reportName || taskReport.childReportName;
+    const taskAssigneeAccountID = Task.getTaskAssigneeAccountID(taskReport) || taskReport.childManagerAccountID;
+    const assigneeLogin = lodashGet(personalDetailsList, [taskAssigneeAccountID, 'login'], '');
+    const assigneeDisplayName = lodashGet(personalDetailsList, [taskAssigneeAccountID, 'displayName'], '');
+    const taskAssignee = assigneeDisplayName || LocalePhoneNumber.formatPhoneNumber(assigneeLogin);
+
+    if (taskAssignee && taskAssigneeAccountID !== 0) {
+        return `<comment><mention-user>@${taskAssignee}</mention-user> ${taskTitle}</comment>`;
+    }
+    return `<comment>${taskTitle}</comment>`;
+}
+
+/**
  * @param {string} actionName
  * @param {string} reportID
  * @param {boolean} isCreateTaskAction
  * @returns {string}
  */
 function getTaskReportActionMessage(actionName, reportID, isCreateTaskAction) {
-    const report = ReportUtils.getReport(reportID);
+    const report = ReportUtils.getReportAction(reportID);
     if (isCreateTaskAction) {
         return `task for ${report.reportName}`;
     }
@@ -963,4 +985,5 @@ export {
     clearEditTaskErrors,
     canModifyTask,
     getTaskReportActionMessage,
+    getTaskReportActionMessageHTML,
 };

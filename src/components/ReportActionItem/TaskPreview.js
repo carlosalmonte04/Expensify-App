@@ -71,15 +71,10 @@ function TaskPreview(props) {
     const isTaskCompleted = !_.isEmpty(props.taskReport)
         ? props.taskReport.stateNum === CONST.REPORT.STATE_NUM.SUBMITTED && props.taskReport.statusNum === CONST.REPORT.STATUS.APPROVED
         : props.action.childStateNum === CONST.REPORT.STATE_NUM.SUBMITTED && props.action.childStatusNum === CONST.REPORT.STATUS.APPROVED;
-    const taskTitle = props.taskReport.reportName || props.action.childReportName;
-    const taskAssigneeAccountID = Task.getTaskAssigneeAccountID(props.taskReport) || props.action.childManagerAccountID;
-    const assigneeLogin = lodashGet(props.personalDetailsList, [taskAssigneeAccountID, 'login'], '');
-    const assigneeDisplayName = lodashGet(props.personalDetailsList, [taskAssigneeAccountID, 'displayName'], '');
-    const taskAssignee = assigneeDisplayName || LocalePhoneNumber.formatPhoneNumber(assigneeLogin);
-    const htmlForTaskPreview =
-        taskAssignee && taskAssigneeAccountID !== 0 ? `<comment><mention-user>@${taskAssignee}</mention-user> ${taskTitle}</comment>` : `<comment>${taskTitle}</comment>`;
-    const isDeletedParentAction = ReportUtils.isCanceledTaskReport(props.taskReport, props.action);
+    const htmlForTaskPreview = Task.getTaskReportActionMessageHTML(props.action);
 
+    const isDeletedParentAction = ReportUtils.isCanceledTaskReport(props.taskReport, props.action);
+    debugger;
     if (isDeletedParentAction) {
         return <RenderHTML html={`<comment>${props.translate('parentReportAction.deletedTask')}</comment>`} />;
     }
