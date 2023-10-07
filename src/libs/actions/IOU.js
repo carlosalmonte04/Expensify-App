@@ -2,7 +2,7 @@ import Onyx from 'react-native-onyx';
 import _ from 'underscore';
 import lodashGet from 'lodash/get';
 import Str from 'expensify-common/lib/str';
-import {format} from 'date-fns';
+import moment from 'moment';
 import CONST from '../../CONST';
 import ROUTES from '../../ROUTES';
 import ONYXKEYS from '../../ONYXKEYS';
@@ -22,6 +22,7 @@ import * as Report from './Report';
 import * as NumberUtils from '../NumberUtils';
 import ReceiptGeneric from '../../../assets/images/receipt-generic.png';
 import * as LocalePhoneNumber from '../LocalePhoneNumber';
+import * as PersonalDetailsUtils from '../../libs/PersonalDetailsUtils';
 
 let allReports;
 Onyx.connect({
@@ -110,7 +111,7 @@ Onyx.connect({
  * @param {String} id
  */
 function resetMoneyRequestInfo(id = '') {
-    const created = currentDate || format(new Date(), CONST.DATE.FNS_FORMAT_STRING);
+    const created = currentDate || moment().format('YYYY-MM-DD');
     Onyx.merge(ONYXKEYS.IOU, {
         id,
         amount: 0,
@@ -895,7 +896,6 @@ function createSplitsAndOnyxData(participants, currentUserLogin, currentUserAcco
             : ReportUtils.getChatByParticipants(participantAccountIDs);
     const splitChatReport = existingSplitChatReport || ReportUtils.buildOptimisticChatReport(participantAccountIDs);
     const isOwnPolicyExpenseChat = splitChatReport.isOwnPolicyExpenseChat;
-
     // ReportID is -2 (aka "deleted") on the group transaction: https://github.com/Expensify/Auth/blob/3fa2698654cd4fbc30f9de38acfca3fbeb7842e4/auth/command/SplitTransaction.cpp#L24-L27
     const formattedParticipants = isOwnPolicyExpenseChat
         ? [currentUserLogin, ReportUtils.getReportName(splitChatReport)]
@@ -1035,10 +1035,13 @@ function createSplitsAndOnyxData(participants, currentUserLogin, currentUserAcco
     const splits = [{email: currentUserEmailForIOUSplit, accountID: currentUserAccountID, amount: IOUUtils.calculateAmount(participants.length, amount, currency, true)}];
 
     const hasMultipleParticipants = participants.length > 1;
+
     _.each(participants, (participant) => {
         // In case the participant is a worskapce, email & accountID should remain undefined and won't be used in the rest of this code
         const email = isOwnPolicyExpenseChat ? '' : OptionsListUtils.addSMSDomainIfPhoneNumber(participant.login).toLowerCase();
         const accountID = isOwnPolicyExpenseChat ? 0 : Number(participant.accountID);
+        const existingPersonalDetails = PersonalDetailsUtils.getPersonalDetailsByID(participant.accountID);
+        debugger;
         if (email === currentUserEmailForIOUSplit) {
             return;
         }
@@ -1056,11 +1059,11 @@ function createSplitsAndOnyxData(participants, currentUserLogin, currentUserAcco
         // entering code that creates optimistic personal details
         if ((!hasMultipleParticipants && !existingSplitChatReportID) || isOwnPolicyExpenseChat) {
             oneOnOneChatReport = splitChatReport;
-            shouldCreateOptimisticPersonalDetails = !existingSplitChatReport;
+            shouldCreateOptimisticPersonalDetails = !existingSplitChatReport && !existingPersonalDetails;
         } else {
             const existingChatReport = ReportUtils.getChatByParticipants([accountID]);
             isNewOneOnOneChatReport = !existingChatReport;
-            shouldCreateOptimisticPersonalDetails = isNewOneOnOneChatReport;
+            shouldCreateOptimisticPersonalDetails = isNewOneOnOneChatReport && !existingPersonalDetails;
             oneOnOneChatReport = existingChatReport || ReportUtils.buildOptimisticChatReport([accountID]);
         }
 
@@ -2302,8 +2305,8 @@ function navigateToNextPage(iou, iouType, report, path = '') {
     Navigation.navigate(ROUTES.MONEY_REQUEST_PARTICIPANTS.getRoute(iouType));
 }
 
-function submitReport() {
-    // Will be implemented in https://github.com/Expensify/App/issues/28763
+function getPersonalDetailsByID(accountID) {
+    return allPersonalDetails[accountID];
 }
 
 export {
@@ -2336,5 +2339,4 @@ export {
     navigateToNextPage,
     updateDistanceRequest,
     replaceReceipt,
-    submitReport,
 };
