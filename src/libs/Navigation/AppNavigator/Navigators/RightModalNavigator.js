@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {View} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 
@@ -9,6 +9,7 @@ import {withNavigationPropTypes} from '../../../../components/withNavigation';
 import styles from '../../../../styles/styles';
 import Overlay from './Overlay';
 import NoDropZone from '../../../../components/DragAndDrop/NoDropZone';
+import * as Session from '../../../../libs/actions/Session';
 
 const Stack = createStackNavigator();
 
@@ -16,9 +17,14 @@ const propTypes = {
     ...withNavigationPropTypes,
 };
 
+function AuthWall(Component) {
+    const isAnonymousUser = Session.isAnonymousUser();
+    return isAnonymousUser ? ModalStackNavigators.SignInModalStackNavigator : Component;
+}
+
 function RightModalNavigator(props) {
     const {isSmallScreenWidth} = useWindowDimensions();
-
+    useEffect(() => Session.redirectToSignInIfAnonymous(), []);
     return (
         <NoDropZone>
             {!isSmallScreenWidth && <Overlay onPress={props.navigation.goBack} />}
@@ -105,12 +111,12 @@ function RightModalNavigator(props) {
                         component={ModalStackNavigators.EditRequestStackNavigator}
                     />
                     <Stack.Screen
-                        name="SignIn"
-                        component={ModalStackNavigators.SignInModalStackNavigator}
-                    />
-                    <Stack.Screen
                         name="Private_Notes"
                         component={ModalStackNavigators.PrivateNotesModalStackNavigator}
+                    />
+                    <Stack.Screen
+                        name="SignIn"
+                        component={ModalStackNavigators.SignInModalStackNavigator}
                     />
                 </Stack.Navigator>
             </View>

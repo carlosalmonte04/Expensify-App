@@ -103,10 +103,17 @@ function signOutAndRedirectToSignIn() {
  * @returns {Function} same callback if the action is allowed, otherwise a function that signs out and redirects to sign in
  */
 function checkIfActionIsAllowed(callback, isAnonymousAction = false) {
+    console.log(`nav checking user`, isAnonymousUser(), isAnonymousAction);
     if (isAnonymousUser() && !isAnonymousAction) {
         return () => signOutAndRedirectToSignIn();
     }
     return callback;
+}
+
+function redirectToSignInIfAnonymous() {
+    if (isAnonymousUser()) {
+        signOutAndRedirectToSignIn();
+    }
 }
 
 /**
@@ -815,4 +822,5 @@ export {
     toggleTwoFactorAuth,
     validateTwoFactorAuth,
     waitForUserSignIn,
+    redirectToSignInIfAnonymous,
 };
