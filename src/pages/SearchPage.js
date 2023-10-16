@@ -159,6 +159,14 @@ class SearchPage extends Component {
         }
     }
 
+    componentDidMount() {
+        console.log('nav: search did mount');
+        setTimeout(() => {
+            console.log('nav: state did mount: ', Navigation.getNavState());
+        }, 1000);
+        // Navigation.dismissModalResetToSearch();
+    }
+
     render() {
         const sections = this.getSections();
         const isOptionsDataReady = ReportUtils.isReportDataReady() && OptionsListUtils.isPersonalDetailsReady(this.props.personalDetails);

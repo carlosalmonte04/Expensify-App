@@ -1,5 +1,6 @@
 import Onyx from 'react-native-onyx';
 import ONYXKEYS from '../../ONYXKEYS';
+import Navigation from '../Navigation/Navigation';
 
 let closeModal: (isNavigating: boolean) => void;
 let onModalClose: null | (() => void);
@@ -50,4 +51,9 @@ function willAlertModalBecomeVisible(isVisible: boolean) {
     Onyx.merge(ONYXKEYS.MODAL, {willAlertModalBecomeVisible: isVisible});
 }
 
-export {setCloseModal, close, onModalDidClose, setModalVisibility, willAlertModalBecomeVisible};
+function closeAll(callback: () => void) {
+    Navigation.dismissAllModals();
+    callback();
+}
+
+export {setCloseModal, close, onModalDidClose, setModalVisibility, willAlertModalBecomeVisible, closeAll};

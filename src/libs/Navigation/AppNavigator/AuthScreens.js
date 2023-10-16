@@ -198,7 +198,9 @@ class AuthScreens extends React.Component {
         this.unsubscribeSearchShortcut = KeyboardShortcut.subscribe(
             searchShortcutConfig.shortcutKey,
             () => {
-                Modal.close(() => Navigation.navigate(ROUTES.SEARCH));
+                Modal.close(() => {
+                    Navigation.navigate(ROUTES.SEARCH);
+                });
             },
             searchShortcutConfig.descriptionKey,
             searchShortcutConfig.modifiers,

@@ -155,24 +155,30 @@ function setParams(params, routeKey) {
  *
  * @param {String | undefined} targetReportID - The reportID to navigate to after dismissing the modal
  */
-function dismissModal(targetReportID) {
+function dismissModal(targetReportID, pop) {
     if (!canNavigate('dismissModal')) {
         return;
     }
     const rootState = navigationRef.getRootState();
     const lastRoute = _.last(rootState.routes);
+    console.log('nav : last route name', lastRoute);
     switch (lastRoute.name) {
         case NAVIGATORS.RIGHT_MODAL_NAVIGATOR:
         case SCREENS.NOT_FOUND:
         case SCREENS.REPORT_ATTACHMENTS:
+            if (getActiveRoute().includes('screen=Search')) {
+                return;
+            }
             // if we are not in the target report, we need to navigate to it after dismissing the modal
             if (targetReportID && targetReportID !== getTopmostReportId(rootState)) {
                 const state = getStateFromPath(ROUTES.REPORT_WITH_ID.getRoute(targetReportID));
 
                 const action = getActionFromState(state, linkingConfig.config);
                 action.type = 'REPLACE';
+                console.log('NAV: replacing');
                 navigationRef.current.dispatch(action);
             } else {
+                console.log('NAV: poping');
                 navigationRef.current.dispatch({...StackActions.pop(), target: rootState.key});
             }
             break;
@@ -217,7 +223,7 @@ function getRouteNameFromStateEvent(event) {
         return currentRouteName;
     }
 }
-
+const getNavState = () => navigationRef.current.getState();
 /**
  * Check whether the passed route is currently Active or not.
  *
@@ -312,12 +318,42 @@ function waitForProtectedRoutes() {
     });
 }
 
+const MODAL_ROUTES = {
+    [SCREENS.REPORT_ATTACHMENTS]: true,
+};
+
+const isModalRoute = (routeName) => {
+    return MODAL_ROUTES[routeName];
+};
+
+const removeModalScreens = (routes) => {
+    return routes.filter((r) => {
+        if (r.routes) {
+            r.routes = removeModalScreens(r.routes);
+        }
+        return !isModalRoute(r.name);
+    });
+};
+
+function dismissAllModals() {
+    console.log('NAV: dismissing all modals!');
+    navigationRef.current.dispatch((state) => {
+        let newState = {...state};
+        newState.routes = removeModalScreens(newState.routes);
+        newState.index = newState.routes.length - 1;
+        const action = getActionFromState(newState, linkingConfig.config);
+        console.log('NAV: new state', newState);
+        return action;
+    });
+}
+
 export default {
     setShouldPopAllStateOnUP,
     canNavigate,
     navigate,
     setParams,
     dismissModal,
+    dismissAllModals,
     isActiveRoute,
     getActiveRoute,
     goBack,
@@ -328,6 +364,7 @@ export default {
     waitForProtectedRoutes,
     getTopMostCentralPaneRouteName,
     getTopmostReportActionId,
+    getNavState,
 };
 
 export {navigationRef};

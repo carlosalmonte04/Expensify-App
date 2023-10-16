@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
 import AttachmentModal from '../../../components/AttachmentModal';
@@ -30,7 +30,10 @@ function ReportAttachments(props) {
             defaultOpen
             report={report}
             source={source}
-            onModalHide={() => Navigation.dismissModal(reportID)}
+            onModalHide={() => {
+                console.log('NAV: ACTIVE ROUTE', Navigation.getActiveRoute(), Navigation.isActiveRoute(ROUTES.REPORT_ATTACHMENTS.route));
+                Navigation.dismissModal(reportID);
+            }}
             onCarouselAttachmentChange={(attachment) => {
                 const route = ROUTES.REPORT_ATTACHMENTS.getRoute(reportID, attachment.source);
                 Navigation.navigate(route);
